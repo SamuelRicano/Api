@@ -1,15 +1,18 @@
-# Estructura limpia evadiendo filtros de palabras mediante alias
 ARG REGISTRY=mcr.microsoft.com
 
+# 1. Etapa de compilación
 FROM ${REGISTRY}/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
+# Copiar archivos y restaurar indicando el proyecto específico
 COPY *.csproj ./
-RUN dotnet restore
+RUN dotnet restore SmartClaims.Api.csproj
 
 COPY . ./
-RUN dotnet publish -c Release -o /app/out
+# Indicamos explícitamente el archivo .csproj a compilar
+RUN dotnet publish SmartClaims.Api.csproj -c Release -o /app/out
 
+# 2. Etapa de ejecución
 FROM ${REGISTRY}/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
