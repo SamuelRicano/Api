@@ -1,4 +1,4 @@
-﻿# 1. Etapa de compilación utilizando el SDK de .NET 9
+﻿# 1. Etapa de compilación utilizando el SDK de .NET 9 SM
 FROM ://microsoft.com AS build
 WORKDIR /src
 
