@@ -1,4 +1,4 @@
-﻿# 1. Etapa de compilación utilizando el SDK de .NET 9 SM
+# 1. Etapa de compilación utilizando el SDK de .NET 9
 FROM ://microsoft.com AS build
 WORKDIR /src
 
@@ -20,3 +20,4 @@ ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "SmartClaims.Api.dll"]
+
