@@ -1,7 +1,7 @@
 ARG REGISTRY=mcr.microsoft.com
 
-# 1. Etapa de compilación
-FROM ${REGISTRY}/dotnet/sdk:9.0 AS build
+# 1. Etapa de compilación usando el SDK de .NET 8
+FROM ${REGISTRY}/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copiar archivos y restaurar indicando el proyecto específico
@@ -9,11 +9,10 @@ COPY *.csproj ./
 RUN dotnet restore SmartClaims.Api.csproj
 
 COPY . ./
-# Indicamos explícitamente el archivo .csproj a compilar
 RUN dotnet publish SmartClaims.Api.csproj -c Release -o /app/out
 
-# 2. Etapa de ejecución
-FROM ${REGISTRY}/dotnet/aspnet:9.0 AS runtime
+# 2. Etapa de ejecución usando el Runtime de .NET 8
+FROM ${REGISTRY}/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
 
