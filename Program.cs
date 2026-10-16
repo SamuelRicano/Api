@@ -10,8 +10,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("SmartClaims");
 
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "No se encontró la cadena de conexión SmartClaims.");
+}
+
 //Se agrega mi servicio SRM
 builder.Services.AddScoped<ICotizacionesService,CotizacionesService>();
+
 builder.Services.AddScoped<ICotizacionesRepository, CotizacionesRepository>();
 
 // Add services to the container.

@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿//using Microsoft.Data.SqlClient;
+using Npgsql;
 using SmartClaims.Api.Data.Interfaces;
 using SmartClaims.Api.Models;
 
@@ -17,25 +18,28 @@ namespace SmartClaims.Api.Data
         {
             var cotizaciones = new List<Cotizacion>();
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
-                string sql = @"
-                    SELECT Numero, NombreCliente, Prima
-                    FROM Cotizaciones";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                string sql = @"SELECT ""Numero"", ""NombreCliente"", ""Prima"" FROM ""Cotizaciones""";
+
+                //string sql = @"
+                //    SELECT Numero, NombreCliente, Prima
+                //    FROM Cotizaciones";
+
+                using (NpgsqlCommand  command = new NpgsqlCommand(sql, connection))
                 {
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    using (NpgsqlDataReader  reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
                             var cotizacion = new Cotizacion
                             {
-                                Numero = Convert.ToInt32(reader["Numero"]),
-                                NombreCliente = reader["NombreCliente"].ToString(),
-                                Prima = Convert.ToDecimal(reader["Prima"])
+                                Numero = Convert.ToInt32(reader["numero"]),
+                                NombreCliente = reader["nombrecliente"].ToString(),
+                                Prima = Convert.ToDecimal(reader["prima"])
                             };
 
                             cotizaciones.Add(cotizacion);
@@ -51,7 +55,7 @@ namespace SmartClaims.Api.Data
         {
             Cotizacion cotizacion = null;
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
@@ -60,11 +64,11 @@ namespace SmartClaims.Api.Data
             FROM Cotizaciones
             WHERE Numero = @Numero";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@Numero", numero);
 
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    using (NpgsqlDataReader reader = await command.ExecuteReaderAsync())
                     {
                         if (await reader.ReadAsync())
                         {
@@ -84,41 +88,55 @@ namespace SmartClaims.Api.Data
 
         public async Task<Cotizacion> CrearCotizacion(Cotizacion cotizacion)
         {
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                await connection.OpenAsync();
-
-                string sql = @"
-            INSERT INTO Cotizaciones
-            (
-                Numero,
-                NombreCliente,
-                Prima
-            )
-            VALUES
-            (
-                @Numero,
-                @NombreCliente,
-                @Prima
-            )";
-
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
                 {
-                    command.Parameters.AddWithValue("@Numero", cotizacion.Numero);
-                    command.Parameters.AddWithValue("@NombreCliente", cotizacion.NombreCliente);
-                    command.Parameters.AddWithValue("@Prima", cotizacion.Prima);
+                    await connection.OpenAsync();
 
-                    await command.ExecuteNonQueryAsync();
+                    string sql = @"
+                    INSERT INTO ""Cotizaciones""
+                    (
+                        ""Numero"",
+                        ""NombreCliente"",
+                        ""Prima""
+                    )
+                    VALUES
+                    (
+                        @Numero,
+                        @NombreCliente,
+                        @Prima
+                    )";
+
+                    using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@Numero", cotizacion.Numero);
+                        command.Parameters.AddWithValue("@NombreCliente", cotizacion.NombreCliente);
+                        command.Parameters.AddWithValue("@Prima", cotizacion.Prima);
+
+                        await command.ExecuteNonQueryAsync();
+                    }
                 }
+
+                return cotizacion;
+            }
+            catch (PostgresException ex)
+            {
+
+                Console.WriteLine($"Error PostgreSQL: {ex.MessageText}");
+                Console.WriteLine($"Código SQL: {ex.SqlState}");
+                Console.WriteLine($"Detalle: {ex.Detail}");
+                Console.WriteLine($"Restricción: {ex.ConstraintName}");
+
+                throw;
             }
 
-            return cotizacion;
+       
 
         }
         public async Task<bool> ActualizarCotizacion(Cotizacion cotizacion)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
@@ -129,7 +147,7 @@ namespace SmartClaims.Api.Data
                 Prima = @Prima
             WHERE Numero = @Numero";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@Numero", cotizacion.Numero);
                     command.Parameters.AddWithValue("@NombreCliente", cotizacion.NombreCliente);
@@ -143,7 +161,7 @@ namespace SmartClaims.Api.Data
         }
         public async Task<bool> EliminarCotizacion(int numero)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
@@ -151,7 +169,7 @@ namespace SmartClaims.Api.Data
             DELETE FROM Cotizaciones
             WHERE Numero = @Numero";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@Numero", numero);
 
@@ -163,16 +181,20 @@ namespace SmartClaims.Api.Data
         }
         public async Task<bool> ExisteCotizacion(int numero)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
+                //    string sql = @"
+                //SELECT COUNT(1)
+                //FROM Cotizaciones
+                //WHERE Numero = @Numero";
                 string sql = @"
-            SELECT COUNT(1)
-            FROM Cotizaciones
-            WHERE Numero = @Numero";
+                    SELECT COUNT(1)
+                    FROM ""Cotizaciones""
+                    WHERE ""Numero"" = @Numero";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@Numero", numero);
                     var resultado = await command.ExecuteScalarAsync();
@@ -186,7 +208,7 @@ namespace SmartClaims.Api.Data
 
         public void ProbarConexion()
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
             }
