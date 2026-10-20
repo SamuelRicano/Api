@@ -1,21 +1,21 @@
-﻿# 1. Etapa de compilación utilizando el SDK de .NET 9 SM
-FROM ://microsoft.com AS build
+ARG REGISTRY=mcr.microsoft.com
+
+# 1. Etapa de compilación usando el SDK de .NET 8
+FROM ${REGISTRY}/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copiar el archivo de proyecto y restaurar dependencias
+# Copiar archivos y restaurar indicando el proyecto específico
 COPY *.csproj ./
-RUN dotnet restore
+RUN dotnet restore SmartClaims.Api.csproj
 
-# Copiar el resto del código y compilar
 COPY . ./
-RUN dotnet publish -c Release -o /app/out
+RUN dotnet publish SmartClaims.Api.csproj -c Release -o /app/out
 
-# 2. Etapa de ejecución utilizando el Runtime ligero de .NET 9
-FROM ://microsoft.com AS runtime
+# 2. Etapa de ejecución usando el Runtime de .NET 8
+FROM ${REGISTRY}/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Configurar el puerto para que Render pueda comunicarse
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
