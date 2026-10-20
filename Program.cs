@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("SmartClaims");
 
+
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException(
@@ -20,6 +21,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddScoped<ICotizacionesService,CotizacionesService>();
 
 builder.Services.AddScoped<ICotizacionesRepository, CotizacionesRepository>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 // Add services to the container.
 

@@ -11,7 +11,7 @@ namespace SmartClaims.Api.Data
 
         public CotizacionesRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("SmartClaims");
+            _connectionString = configuration.GetConnectionString("SmartClaims")!;
         }
 
         public async Task <List<Cotizacion>> ObtenerCotizaciones()
@@ -60,9 +60,9 @@ namespace SmartClaims.Api.Data
                 await connection.OpenAsync();
 
                 string sql = @"
-            SELECT Numero, NombreCliente, Prima
-            FROM Cotizaciones
-            WHERE Numero = @Numero";
+            SELECT ""Numero"", ""NombreCliente"", ""Prima""
+            FROM ""Cotizaciones""
+            WHERE ""Numero"" = @Numero";
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
                 {
@@ -141,11 +141,11 @@ namespace SmartClaims.Api.Data
                 await connection.OpenAsync();
 
                 string sql = @"
-            UPDATE Cotizaciones
+            UPDATE ""Cotizaciones""
             SET
-                NombreCliente = @NombreCliente,
-                Prima = @Prima
-            WHERE Numero = @Numero";
+                ""NombreCliente"" = @NombreCliente,
+                ""Prima"" = @Prima
+            WHERE ""Numero"" = @Numero";
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
                 {
@@ -166,8 +166,8 @@ namespace SmartClaims.Api.Data
                 await connection.OpenAsync();
 
                 string sql = @"
-            DELETE FROM Cotizaciones
-            WHERE Numero = @Numero";
+            DELETE FROM ""Cotizaciones""
+            WHERE ""Numero"" = @Numero";
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
                 {

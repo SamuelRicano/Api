@@ -70,14 +70,8 @@ namespace SmartClaims.Api.Controllers
         [HttpPut("{numero}")]
         public async Task<IActionResult> ActualizarCotizacion(int numero, ActualizarCotizacionDto dto)
         {
-            //var cotizacion = new Cotizacion
-            //{
-            //    Numero = numero,
-            //    NombreCliente = dto.NombreCliente,
-            //    Prima = dto.Prima
-            //};
-
-            var cotizacion = _mapper.Map<Cotizacion>(dto);
+            var cotizacion = new Cotizacion { Numero = numero };
+            _mapper.Map(dto, cotizacion);
 
             var actualizado =await _cotizacionesService.ActualizarCotizacion(cotizacion);
 
