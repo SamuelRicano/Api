@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper; // <-- 1. Importamos la librería
+using Microsoft.AspNetCore.Mvc;
 using SmartClaims.Api.DTOs;
 using SmartClaims.Api.Exceptions;
 using SmartClaims.Api.Models;
@@ -12,10 +13,12 @@ namespace SmartClaims.Api.Controllers
     public class CotizacionesController : ControllerBase
     {
         private readonly ICotizacionesService _cotizacionesService;
+        private readonly IMapper _mapper;
 
-        public CotizacionesController(ICotizacionesService cotizacionesService)
+        public CotizacionesController(ICotizacionesService cotizacionesService, IMapper mapper)
         {
             _cotizacionesService = cotizacionesService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -43,12 +46,16 @@ namespace SmartClaims.Api.Controllers
         public async Task<IActionResult> CrearCotizacion(CrearCotizacionDto dto)
         {
 
-            var cotizacion = new Cotizacion
-            {
-                Numero = dto.Numero,
-                NombreCliente = dto.NombreCliente,
-                Prima = dto.Prima
-            };
+            //var cotizacion = new Cotizacion
+            //{
+            //    Numero = dto.Numero,
+            //    NombreCliente = dto.NombreCliente,
+            //    Prima = dto.Prima
+            //};
+
+            // 4. ¡ADIÓS AL MAPEO MANUAL LARGO!
+            // Le decimos a la fotocopiadora: "Toma este 'dto' y conviértelo en una 'Cotizacion'"
+            var cotizacion = _mapper.Map<Cotizacion>(dto);
 
             var nuevaCotizacion = await _cotizacionesService.CrearCotizacion(cotizacion);
 
@@ -63,12 +70,14 @@ namespace SmartClaims.Api.Controllers
         [HttpPut("{numero}")]
         public async Task<IActionResult> ActualizarCotizacion(int numero, ActualizarCotizacionDto dto)
         {
-            var cotizacion = new Cotizacion
-            {
-                Numero = numero,
-                NombreCliente = dto.NombreCliente,
-                Prima = dto.Prima
-            };
+            //var cotizacion = new Cotizacion
+            //{
+            //    Numero = numero,
+            //    NombreCliente = dto.NombreCliente,
+            //    Prima = dto.Prima
+            //};
+
+            var cotizacion = _mapper.Map<Cotizacion>(dto);
 
             var actualizado =await _cotizacionesService.ActualizarCotizacion(cotizacion);
 
