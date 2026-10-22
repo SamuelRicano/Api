@@ -23,11 +23,10 @@ namespace SmartClaims.Api.Data
                 await connection.OpenAsync();
 
 
-                string sql = @"SELECT ""Numero"", ""NombreCliente"", ""Prima"" FROM ""Cotizaciones""";
+                string sql = @"SELECT ""Numero"", ""NombreCliente"", ""Prima"" 
+                                FROM ""cotizaciones""";
 
-                //string sql = @"
-                //    SELECT Numero, NombreCliente, Prima
-                //    FROM Cotizaciones";
+            
 
                 using (NpgsqlCommand  command = new NpgsqlCommand(sql, connection))
                 {
@@ -61,7 +60,7 @@ namespace SmartClaims.Api.Data
 
                 string sql = @"
             SELECT ""Numero"", ""NombreCliente"", ""Prima""
-            FROM ""Cotizaciones""
+            FROM ""cotizaciones""
             WHERE ""Numero"" = @Numero";
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
@@ -95,7 +94,7 @@ namespace SmartClaims.Api.Data
                     await connection.OpenAsync();
 
                     string sql = @"
-                    INSERT INTO ""Cotizaciones""
+                    INSERT INTO ""cotizaciones""
                     (
                         ""Numero"",
                         ""NombreCliente"",
@@ -141,7 +140,7 @@ namespace SmartClaims.Api.Data
                 await connection.OpenAsync();
 
                 string sql = @"
-            UPDATE ""Cotizaciones""
+            UPDATE ""cotizaciones""
             SET
                 ""NombreCliente"" = @NombreCliente,
                 ""Prima"" = @Prima
@@ -166,7 +165,7 @@ namespace SmartClaims.Api.Data
                 await connection.OpenAsync();
 
                 string sql = @"
-            DELETE FROM ""Cotizaciones""
+            DELETE FROM ""cotizaciones""
             WHERE ""Numero"" = @Numero";
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
@@ -191,7 +190,7 @@ namespace SmartClaims.Api.Data
                 //WHERE Numero = @Numero";
                 string sql = @"
                     SELECT COUNT(1)
-                    FROM ""Cotizaciones""
+                    FROM ""cotizaciones""
                     WHERE ""Numero"" = @Numero";
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, connection))
